@@ -79,7 +79,7 @@ The project is created with:
 ### Run it locally
 #### Clone the repo
 ```
-
+git clone https://github.com/ktkreddy/HealthEats.github.io.git
 ```
 ### docker-compose
 In the project root run:
