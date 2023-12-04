@@ -11,15 +11,17 @@ if 'generated' not in st.session_state:
     st.session_state.recommendations=None
 
 class Recommendation:
-    def __init__(self,nutrition_list,nb_recommendations,ingredient_txt):
+    def __init__(self,nutrition_list,nb_recommendations,ingredient_txt,ingredients_to_avoid_txt):
         self.nutrition_list=nutrition_list
         self.nb_recommendations=nb_recommendations
         self.ingredient_txt=ingredient_txt
+        self.ingredients_to_avoid_txt=ingredients_to_avoid_txt
         pass
     def generate(self,):
         params={'n_neighbors':self.nb_recommendations,'return_distance':False}
         ingredients=self.ingredient_txt.split(';')
-        generator=Generator(self.nutrition_list,ingredients,params)
+        ingredients_to_avoid=self.ingredients_to_avoid_txt.split(';')
+        generator=Generator(self.nutrition_list,ingredients,ingredients_to_avoid,params)
         recommendations=generator.generate()
         recommendations = recommendations.json()['output']
         if recommendations!=None:              
@@ -98,6 +100,11 @@ class Display:
             st_echarts(options=options, height="600px",)
             st.caption('You can select/deselect an item (nutrition value) from the legend.')
 
+def has_common_substring(str1, str2):
+    substrings1 = str1.split(';')
+    substrings2 = str2.split(';')
+    return any(substring.strip().lower() in (item.strip().lower() for item in substrings2) for substring in substrings1)
+
 title="<h1 style='text-align: center;'>Custom Food Recommendation</h1>"
 st.markdown(title, unsafe_allow_html=True)
 
@@ -118,15 +125,26 @@ with st.form("recommendation_form"):
     nutritions_values_list=[Calories,FatContent,SaturatedFatContent,CholesterolContent,SodiumContent,CarbohydrateContent,FiberContent,SugarContent,ProteinContent]
     st.header('Recommendation options (OPTIONAL):')
     nb_recommendations = st.slider('Number of recommendations', 5, 20,step=5)
-    ingredient_txt=st.text_input('Specify ingredients to include in the recommendations separated by ";" :',placeholder='Ingredient1;Ingredient2;...')
+    # Inputs for ingredients
+    
+    ingredient_txt = st.text_input('Specify ingredients to include in the recommendations separated by ";" :')
     st.caption('Example: Milk;eggs;butter;chicken...')
+    ingredients_to_avoid_txt = st.text_input('Specify ingredients to void in the recommendations separated by ";":')
+    # Check for common substrings
+    common_substring = has_common_substring(ingredient_txt, ingredients_to_avoid_txt)
+
+    # Submit button
     generated = st.form_submit_button("Generate")
-if generated:
-    with st.spinner('Generating recommendations...'): 
-        recommendation=Recommendation(nutritions_values_list,nb_recommendations,ingredient_txt)
-        recommendations=recommendation.generate()
-        st.session_state.recommendations=recommendations
-    st.session_state.generated=True 
+    if generated:
+        if common_substring:
+            # Show warning if there are common substrings
+            st.warning('Ingredients to include and avoid cannot have common items.')
+        else:
+            with st.spinner('Generating recommendations...'): 
+                recommendation=Recommendation(nutritions_values_list,nb_recommendations,ingredient_txt,ingredients_to_avoid_txt)
+                recommendations=recommendation.generate()
+                st.session_state.recommendations=recommendations
+                st.session_state.generated=True    
 
 if st.session_state.generated:
     with st.container():
