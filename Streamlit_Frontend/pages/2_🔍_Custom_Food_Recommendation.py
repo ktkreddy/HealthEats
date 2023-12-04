@@ -132,11 +132,10 @@ with st.form("recommendation_form"):
     ingredients_to_avoid_txt = st.text_input('Specify ingredients to void in the recommendations separated by ";":')
     # Check for common substrings
     common_substring = has_common_substring(ingredient_txt, ingredients_to_avoid_txt)
-
     # Submit button
     generated = st.form_submit_button("Generate")
     if generated:
-        if common_substring:
+        if common_substring and ingredients_to_avoid_txt!="" and ingredient_txt!="":
             # Show warning if there are common substrings
             st.warning('Ingredients to include and avoid cannot have common items.')
         else:
