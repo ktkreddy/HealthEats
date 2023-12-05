@@ -23,6 +23,7 @@ class Recommendation:
         ingredients_to_avoid=self.ingredients_to_avoid_txt.split(';')
         generator=Generator(self.nutrition_list,ingredients,ingredients_to_avoid,params)
         recommendations=generator.generate()
+        print(recommendations)
         recommendations = recommendations.json()['output']
         if recommendations!=None:              
             for recipe in recommendations:
