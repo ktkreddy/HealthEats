@@ -21,5 +21,5 @@ class Generator:
             'ingredients_to_avoid_txt':self.ingredients_to_avoid_txt,
             'params':self.params
         }
-        response=requests.post(url='http://backend:8080/predict/',data=json.dumps(request))
+        response=requests.post(url='https://healthyeats-b8fe157c3fb1.herokuapp.com/predict/',data=json.dumps(request))
         return response
