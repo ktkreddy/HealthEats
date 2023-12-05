@@ -21,5 +21,5 @@ class Generator:
             'ingredients_to_avoid_txt':self.ingredients_to_avoid_txt,
             'params':self.params
         }
-        response=requests.post(url='http://3.91.201.92/predict/',data=json.dumps(request))
+        response=requests.post(url='http://backend:8080/predict/',data=json.dumps(request))
         return response
